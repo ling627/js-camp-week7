@@ -12,6 +12,15 @@ const axios = require('axios');
 const API_PATH = process.env.API_PATH;
 const BASE_URL = 'https://livejs-api.hexschool.io';
 const ADMIN_TOKEN = process.env.API_KEY;
+const customerApi = axios.create({
+  baseURL: `${BASE_URL}/api/livejs/v1/customer/${API_PATH}`
+});
+const adminApi = axios.create({
+  baseURL: `${BASE_URL}/api/livejs/v1/admin/${API_PATH}`,
+  headers: {
+    authorization: ADMIN_TOKEN
+  }
+});
 
 // ========================================
 // 任務一：日期處理 - dayjs
@@ -94,7 +103,7 @@ function validateOrderUser(data) {
   const errors = [];
   const payments = ['ATM', 'Credit Card', 'Apple Pay'];
 
-  if (!data.name || data.name.trim() === '') {
+  if (!data.name || data.name.trim().length === 0) {
     errors.push('name: 不可為空');
   }
   if (!data.tel || !/^09\d{8}$/.test(data.tel)) {
@@ -103,7 +112,7 @@ function validateOrderUser(data) {
   if (!data.email || !data.email.includes('@')) {
     errors.push('email: 必須包含 @ 符號');
   }
-  if (!data.address || data.address.trim() === '') {
+  if (!data.address || data.address.trim().length === 0) {
     errors.push('address: 不可為空');
   }
   if (!data.payment || !payments.includes(data.payment)) {
@@ -169,8 +178,12 @@ async function getProductsWithAxios() {
   // 請實作此函式
   // 提示：axios.get() 會自動解析 JSON，不需要 .json()
   // 回傳 response.data.products
-  const response = await axios.get(`${BASE_URL}/api/livejs/v1/customer/${API_PATH}/products`);
-  return response.data.products;
+  try {
+    const response = await customerApi.get("/products");
+    return response.data.products;
+  } catch (error) {
+    console.log('API 錯誤', error.message);
+  }
 }
 
 /**
@@ -182,8 +195,12 @@ async function getProductsWithAxios() {
 async function addToCartWithAxios(productId, quantity) {
   // 請實作此函式
   // 提示：axios.post(url, data) 會自動設定 Content-Type
-  const response = await axios.post(`${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts`, { data: { productId, quantity } });
-  return response.data;
+  try {
+    const response = await customerApi.post("/carts", { data: { productId, quantity } });
+    return response.data;
+  } catch (error) {
+    console.log('API 錯誤', error.message);
+  }
 }
 
 /**
@@ -193,8 +210,12 @@ async function addToCartWithAxios(productId, quantity) {
 async function getOrdersWithAxios() {
   // 請實作此函式
   // 提示：axios.get(url, { headers: { authorization: token } })
-  const response = await axios.get(`${BASE_URL}/api/livejs/v1/admin/${API_PATH}/orders`, { headers: { authorization: ADMIN_TOKEN } });
-  return response.data.orders;
+  try {
+    const response = await adminApi.get("/orders");
+    return response.data.orders;
+  } catch (error) {
+    console.log('API 錯誤', error.message);
+  }
 }
 
 /*
@@ -231,8 +252,12 @@ const OrderService = {
    */
   async fetchOrders() {
     // 請實作此函式
-    const response = await axios.get(`${this.baseURL}/api/livejs/v1/admin/${this.apiPath}/orders`, { headers: { authorization: this.token } });
-    return response.data.orders;
+    try {
+      const response = await axios.get(`${this.baseURL}/api/livejs/v1/admin/${this.apiPath}/orders`, { headers: { authorization: this.token } });
+      return response.data.orders;
+    } catch (error) {
+      console.log('API 錯誤', error.message);
+    }
   },
 
   /**
