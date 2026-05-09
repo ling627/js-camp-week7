@@ -60,7 +60,7 @@ function getDaysAgo(timestamp) {
 function isOrderOverdue(timestamp) {
   // 請實作此函式
   const days = dayjs().diff(dayjs.unix(timestamp), 'day');
-  return (days >= 7);
+  return (days > 7);
 }
 
 /**
@@ -131,16 +131,16 @@ function validateOrderUser(data) {
  * - 不可小於 1
  * - 不可大於 99
  */
-function validateCartQuantity(quantity) {
-  if (!Number.isInteger(quantity)) {
-    return { isValid: false, error: '數量必須是整數' };
-  }
+  function validateCartQuantity(quantity) {
+    if (!Number.isInteger(quantity)) {
+      return { isValid: false, error: '數量必須是整數' };
+    }
 
-  if (quantity < 1 || quantity > 99) {
-    return { isValid: false, error: '數量需介於 1~99' };
-  }
+    if (quantity < 1 || quantity > 99) {
+      return { isValid: false, error: '數量需介於 1~99' };
+    }
 
-  return { isValid: true };
+    return { isValid: true };
 }
 
 // ========================================
